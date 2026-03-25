@@ -1,14 +1,13 @@
 import json
 import os
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
+from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from langchain_pinecone import PineconeVectorStore
 from langchain.schema import Document
 import warnings
 from dotenv import load_dotenv
 
 warnings.filterwarnings("ignore")
-# Load .env from parent directory
 load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
 
 def ingest_data_pinecone(file_path="../Phase_1_Scraper/courses_data.json"):
@@ -43,7 +42,7 @@ def ingest_data_pinecone(file_path="../Phase_1_Scraper/courses_data.json"):
         print("Please add these keys to your .env file before running this script.")
         return
 
-    print("Loading HuggingFace Inference API embeddings...")
+    print("Loading HuggingFace Endpoint embeddings...")
     embeddings = HuggingFaceEndpointEmbeddings(
         huggingfacehub_api_token=hf_token, 
         repo_id="sentence-transformers/all-MiniLM-L6-v2"
