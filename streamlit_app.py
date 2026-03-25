@@ -1,6 +1,10 @@
-__import__('pysqlite3')
+# Conditionally patch sqlite3 for Streamlit Cloud (Linux)
 import sys
-sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+try:
+    __import__('pysqlite3')
+    sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+except ImportError:
+    pass
 
 import streamlit as st
 from langchain_community.vectorstores import Chroma
@@ -31,7 +35,11 @@ def load_vectorstore():
     vectorstore = Chroma(persist_directory="./Phase_2_RAG/chroma_db", embedding_function=embeddings)
     return vectorstore.as_retriever(search_kwargs={"k": 4})
 
-retriever = load_vectorstore()
+try:
+    retriever = load_vectorstore()
+except Exception as e:
+    st.error(f"Failed to load Vector database. Error: {e}")
+    retriever = None
 
 # Initialize chat history
 if "messages" not in st.session_state:
@@ -51,13 +59,15 @@ if prompt := st.chat_input("What courses do you have for UPSC?"):
 
     # Display assistant response in chat message container
     with st.chat_message("assistant"):
-        if not api_key:
+        if not retriever:
+            st.warning("Database unavailable.")
+        elif not api_key:
             st.warning("No GROQ API Key provided. Returning retrieved document context instead of AI generated answer:")
             docs = retriever.invoke(prompt)
             if not docs:
                 response = "Could not find related course information."
             else:
-                response = "\n\n---\n\n".join([f"**Source:** {d.metadata.get('source', 'Unknown')}\n\n{d.page_content}" for d in docs])
+                response = "\\n\\n---\\n\\n".join([f"**Source:** {d.metadata.get('source', 'Unknown')}\\n\\n{d.page_content}" for d in docs])
             st.markdown(response)
             st.session_state.messages.append({"role": "assistant", "content": response})
         else:
@@ -70,8 +80,8 @@ if prompt := st.chat_input("What courses do you have for UPSC?"):
                 "You assist users in providing information specifically about courses offered by Physics Wallah. "
                 "Use the following pieces of retrieved context to answer the user's question clearly and concisely. "
                 "If you don't know the answer, say that you don't have enough information based on the scraped data. "
-                "Always maintain a polite and helpful tone.\n\n"
-                "Context:\n{context}"
+                "Always maintain a polite and helpful tone.\\n\\n"
+                "Context:\\n{context}"
             )
             prompt_template = ChatPromptTemplate.from_messages([
                 ("system", system_prompt),
