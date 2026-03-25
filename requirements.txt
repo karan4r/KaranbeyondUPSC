@@ -9,4 +9,3 @@ sentence-transformers
 chromadb
 pydantic
 python-dotenv
-pysqlite3-binary
