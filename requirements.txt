@@ -7,6 +7,6 @@ langchain-core>=0.3.0
 langchain-huggingface>=0.0.3
 langchain-pinecone
 python-dotenv>=1.0.0
-pinecone-client>=3.1.0
+pinecone>=3.3.0
 requests
 uvicorn
