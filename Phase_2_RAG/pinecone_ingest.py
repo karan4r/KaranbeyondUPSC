@@ -44,9 +44,9 @@ def ingest_data_pinecone(file_path="../Phase_1_Scraper/courses_data.json"):
         return
 
     print("Loading HuggingFace Inference API embeddings...")
-    embeddings = HuggingFaceInferenceAPIEmbeddings(
-        api_key=hf_token, 
-        model_name="sentence-transformers/all-MiniLM-L6-v2"
+    embeddings = HuggingFaceEndpointEmbeddings(
+        huggingfacehub_api_token=hf_token, 
+        repo_id="sentence-transformers/all-MiniLM-L6-v2"
     )
     
     print(f"Uploading {len(documents)} chunks to Pinecone Index '{pinecone_index_name}'...")

@@ -38,9 +38,9 @@ async def chat_endpoint(request: QueryRequest):
         raise HTTPException(status_code=500, detail="Server misconfigured: PINECONE_API_KEY or HF_TOKEN is missing in Vercel ENV.")
         
     try:
-        embeddings = HuggingFaceInferenceAPIEmbeddings(
-            api_key=hf_token, 
-            model_name="sentence-transformers/all-MiniLM-L6-v2"
+        embeddings = HuggingFaceEndpointEmbeddings(
+            huggingfacehub_api_token=hf_token, 
+            repo_id="sentence-transformers/all-MiniLM-L6-v2"
         )
         vectorstore = PineconeVectorStore(
             index_name=pinecone_index_name,
