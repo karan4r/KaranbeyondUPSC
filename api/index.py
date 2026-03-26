@@ -7,8 +7,8 @@ try:
     from pydantic import BaseModel
     from langchain_pinecone import PineconeVectorStore
     from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
-    from langchain.chains import create_retrieval_chain
-    from langchain.chains.combine_documents import create_stuff_documents_chain
+    from langchain_core.runnables import RunnablePassthrough
+    from langchain_core.output_parsers import StrOutputParser
     from langchain_core.prompts import ChatPromptTemplate
     from langchain_groq import ChatGroq
 
@@ -83,11 +83,18 @@ try:
                     ("user", "{input}"),
                 ])
                 
-                combine_docs_chain = create_stuff_documents_chain(llm, prompt_template)
-                retrieval_chain = create_retrieval_chain(retriever, combine_docs_chain)
+                def format_docs(docs):
+                    return "\n\n".join(doc.page_content for doc in docs)
+                    
+                rag_chain = (
+                    {"context": retriever | format_docs, "input": RunnablePassthrough()}
+                    | prompt_template
+                    | llm
+                    | StrOutputParser()
+                )
                 
-                result = retrieval_chain.invoke({"input": query})
-                return {"answer": result["answer"], "fallback": False}
+                result = rag_chain.invoke(query)
+                return {"answer": result, "fallback": False}
 
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
