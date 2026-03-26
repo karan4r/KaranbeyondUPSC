@@ -3,7 +3,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from langchain_pinecone import PineconeVectorStore
-from langchain_huggingface import HuggingFaceEndpointEmbeddings
+from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
 from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
@@ -38,9 +38,9 @@ async def chat_endpoint(request: QueryRequest):
         raise HTTPException(status_code=500, detail="Server misconfigured: PINECONE_API_KEY or HF_TOKEN is missing in Vercel ENV.")
         
     try:
-        embeddings = HuggingFaceEndpointEmbeddings(
-            huggingfacehub_api_token=hf_token, 
-            repo_id="sentence-transformers/all-MiniLM-L6-v2"
+        embeddings = HuggingFaceInferenceAPIEmbeddings(
+            api_key=hf_token, 
+            model_name="sentence-transformers/all-MiniLM-L6-v2"
         )
         vectorstore = PineconeVectorStore(
             index_name=pinecone_index_name,
