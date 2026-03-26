@@ -40,8 +40,19 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (!response.ok) {
-                const errData = await response.json();
-                throw new Error(errData.detail || 'Failed to fetch from the server');
+                let errMessage = 'Failed to fetch from the server';
+                try {
+                    const errStr = await response.text();
+                    try {
+                        const errData = JSON.parse(errStr);
+                        errMessage = errData.detail || JSON.stringify(errData);
+                    } catch (e) {
+                        errMessage = `Server returned an error (${response.status}): ${errStr.substring(0, 100)}...`;
+                    }
+                } catch (e) {
+                    errMessage = `Server returned status ${response.status}`;
+                }
+                throw new Error(errMessage);
             }
 
             const data = await response.json();
