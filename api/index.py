@@ -32,10 +32,10 @@ try:
         if not query.strip():
             raise HTTPException(status_code=400, detail="Query cannot be empty")
             
-        groq_api_key = request.api_key or os.getenv("GROQ_API_KEY")
-        pinecone_api_key = os.getenv("PINECONE_API_KEY")
-        pinecone_index_name = os.getenv("PINECONE_INDEX_NAME", "karan-beyond-upsc")
-        hf_token = os.getenv("HF_TOKEN")
+        groq_api_key = (request.api_key or os.getenv("GROQ_API_KEY", "")).strip()
+        pinecone_api_key = os.getenv("PINECONE_API_KEY", "").strip()
+        pinecone_index_name = os.getenv("PINECONE_INDEX_NAME", "karan-beyond-upsc").strip()
+        hf_token = os.getenv("HF_TOKEN", "").strip()
 
         if not pinecone_api_key or not hf_token:
             raise HTTPException(status_code=500, detail="Server misconfigured: PINECONE_API_KEY or HF_TOKEN is missing in Vercel ENV.")
