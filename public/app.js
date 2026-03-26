@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const errData = JSON.parse(errStr);
                         errMessage = errData.detail || JSON.stringify(errData);
                     } catch (e) {
-                        errMessage = `Server returned an error (${response.status}): ${errStr.substring(0, 100)}...`;
+                        errMessage = `Server returned an error (${response.status}): ${errStr}`;
                     }
                 } catch (e) {
                     errMessage = `Server returned status ${response.status}`;
