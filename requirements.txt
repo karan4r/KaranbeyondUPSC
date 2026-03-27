@@ -10,3 +10,4 @@ python-dotenv>=1.0.0
 pinecone>=3.3.0
 requests
 uvicorn
+streamlit>=1.37.0
