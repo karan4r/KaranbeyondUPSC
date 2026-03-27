@@ -127,6 +127,17 @@ if prompt := st.chat_input("Ask about a course..."):
                 
                 st.session_state.messages.append({"role": "assistant", "content": full_response})
             except Exception as e:
-                error_msg = f"Error connecting to LLM: {str(e)}"
-                st.error(error_msg)
-                st.session_state.messages.append({"role": "assistant", "content": error_msg})
+                import traceback
+                error_str = str(e).strip()
+                error_repr = repr(e)
+                
+                # Check for the dreaded Hugging Face cold start KeyError
+                if error_str == "0" or error_str == "'0'" or "KeyError" in error_repr:
+                    st.warning("⏳ **The Hugging Face Embedding Model is currently waking up.**\n\nSince we are using the free Serverless Inference API, the model goes to sleep after inactivity. It usually takes about 20-30 seconds to load into memory.\n\n**Please wait 30 seconds and try submitting your question again!**")
+                else:
+                    st.error(f"Error connecting to backend services: {error_str}")
+                    with st.expander("Show detailed error logs"):
+                        st.code(traceback.format_exc())
+                
+                # To prevent leaving a hanging typing indicator or empty message
+                st.session_state.messages.append({"role": "assistant", "content": f"⚠️ Encountered an error. (See logs for details)"})
